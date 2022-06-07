@@ -30,39 +30,21 @@ Route::middleware('auth:sanctum')->group(
     function () {
         /* Admin Routes */
         Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () {
-            Route::group(['prefix' => 'class'], function () {
-                Route::post('/', [ClassesController::class, 'new_class']);
-                Route::get('/{id}', [ClassesController::class, 'get_class']);
-            });
-
-            Route::group(['prefix' => 'courses'], function () {
-                Route::post('/', [CourseController::class, 'new_course']);
-                Route::get('/{id}', [CourseController::class, 'get_course']);
-            });
-
-            Route::group(['prefix' => 'user'], function () {
-                Route::post('assign', [AdminController::class, 'add_user_role']);
-                Route::post('deassign', [AdminController::class, 'remove_user_role']);
-            });
-
+            Route::apiResource('class', ClassesController::class);
+            Route::apiResource('courses', CourseController::class);
+            Route::apiResource('role', RoleController::class);
         });
 
         /* Student Routes */
         Route::group(['prefix' => 'student','middleware' => ['role:student']], function () {
-            Route::group(['prefix' => 'class'], function () {
-                Route::post('join', [StudentController::class, 'join_class']);
-                Route::delete('leave', [StudentController::class, 'leave_class']);
-            });
+            Route::apiResource('class', StudentController::class);
         });
 
         /* Teacher Routes */
         Route::group(['prefix' => 'teacher','middleware' => ['role:teacher']], function () {
-            Route::get('students', [TeacherController::class, 'get_teacher_students']);
-            Route::get('courses', [TeacherController::class, 'get_teacher_courses']);
+            Route::get('students', [TeacherController::class, 'getTeacherStudents']);
+            Route::get('courses', [TeacherController::class, 'getTeacherCourses']);
         });
-
-        Route::delete('logout', [LogoutController::class, 'logout']);
-
     }
 );
 
@@ -70,5 +52,6 @@ Route::prefix('/auth')->group(
     function () {
         Route::post('register', [RegisterController::class, 'register']);
         Route::post('login', [LoginController::class, 'login']);
+        Route::delete('logout', [LogoutController::class, 'logout'])->middleware('auth:sanctum');
     }
 );
