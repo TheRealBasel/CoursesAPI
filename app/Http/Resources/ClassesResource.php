@@ -18,13 +18,11 @@ class ClassesResource extends JsonResource
      */
     public function toArray($request)
     {
-        // UserResource::collection(ClassStudent::where('class_id', $this->id)-get())
-        $students = ClassStudent::where('class_id', $this->id)->get();
         return [
             'start_time' => $this->start_time,
             'end_time' => $this->end_time,
             'teacher' => $this->teacher_id,
-            'students' => $students,
+            'students' => ClassStudent::where('class_id', $this->id)->get(),
             'days' => $this->days
         ];
     }

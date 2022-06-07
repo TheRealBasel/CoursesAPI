@@ -2,14 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\ClassesController;
 use App\Http\Controllers\StudentController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TeacherController;
 
 
@@ -32,7 +30,9 @@ Route::middleware('auth:sanctum')->group(
         Route::group(['prefix' => 'admin', 'middleware' => ['role:admin']], function () {
             Route::apiResource('class', ClassesController::class);
             Route::apiResource('courses', CourseController::class);
-            Route::apiResource('role', RoleController::class);
+            Route::post('role', [RoleController::class,'modifyUserRole']);
+            Route::delete('role', [RoleController::class,'modifyUserRole']);
+
         });
 
         /* Student Routes */
@@ -50,8 +50,8 @@ Route::middleware('auth:sanctum')->group(
 
 Route::prefix('/auth')->group(
     function () {
-        Route::post('register', [RegisterController::class, 'register']);
-        Route::post('login', [LoginController::class, 'login']);
-        Route::delete('logout', [LogoutController::class, 'logout'])->middleware('auth:sanctum');
+        Route::post('register', [AuthController::class, 'register']);
+        Route::post('login', [AuthController::class, 'login']);
+        Route::delete('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     }
 );

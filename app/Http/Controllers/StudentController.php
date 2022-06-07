@@ -10,39 +10,38 @@ use App\Models\ClassStudent;
 
 class StudentController extends Controller
 {
-    public function join_class(Request $request){
-        $validated_request = $request->validate([
+    public function store(Request $request){
+        $request->validate([
             'class_id' => ['required', 'exists:class_rooms,id'],
             'student_id' => [
                 'required',
                 'exists:users,id',
                 Rule::exists('model_has_roles', 'model_id')->where(function ($query) {
-                    return $query->where('role_id', 2);
+                    return $query->where('role_id', $this->STUDENT_ROLE_ID);
                 })
             ],
         ]);
         
-        $created_student = ClassStudent::create($validated_request);
-        $founded_class = ClassRoom::findOrFail($validated_request['class_id']);
+        ClassStudent::create($request->toArray());
+
+        $founded_class = ClassRoom::find($request->class_id);
+
         return new ClassesResource($founded_class);
     }
 
-    public function leave_class(Request $request){
-        $validated_request = $request->validate([
+    public function destroy(Request $request){
+        $request->validate([
             'class_id' => ['required', 'numeric', 'exists:class_rooms,id'],
             'student_id' => ['required', 'numeric'],
         ]);
         
-        $founded_student = ClassStudent::where('class_id', $validated_request['class_id'])->where('student_id', $validated_request['student_id']);
-        if ( $founded_student->first() && $founded_student->first()->delete() ){
-            return response()->json([
-                'success' => true,
-                'message' => 'Student deleted from class'
-            ], 200);
-        }
+        $student = ClassStudent::where('class_id', $request->class_id)->whereOrFail('student_id', $request->student_id)->first();
+        
+        $student->delete();
+
         return response()->json([
-            'success' => false,
-            'message' => 'Student or Class Not found'
-        ], 400);
+            'success' => true,
+            'message' => 'Student deleted from class'
+        ], 200);
     }
 }
